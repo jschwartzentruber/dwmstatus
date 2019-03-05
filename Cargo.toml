@@ -1,0 +1,16 @@
+[package]
+name = "dwmstatus"
+version = "0.1.0"
+authors = ["Jesse Schwartzentruber <truber@mozilla.com>"]
+edition = "2018"
+
+[profile.release]
+lto = true          # Enable Link Time Optimization
+codegen-units = 1   # Reduce number of codegen units to increase optimizations.
+panic = 'abort'     # Abort on panic
+
+[dependencies]
+chrono = "0.4"
+alsa-sys = "0.1"
+libc = "*"
+x11 = { version = "2.18", features = ["xlib"] }
