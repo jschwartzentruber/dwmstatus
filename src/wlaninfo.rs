@@ -784,7 +784,7 @@ fn find_ssid(ies: &[u8]) -> Option<String> {
     if ies.len() < 2 || ies.len() < (ies[1] + 2) as usize {
         None
     } else {
-        let ssid = &ies[2..ies[1] as usize + 3];
+        let ssid = &ies[2..ies[1] as usize + 2];
         Some(String::from_utf8_lossy(ssid).into_owned())
     }
 }

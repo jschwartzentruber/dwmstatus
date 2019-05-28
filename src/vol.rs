@@ -135,7 +135,9 @@ impl Elem {
 
 impl Drop for Elem {
     fn drop(&mut self) {
-        unsafe { alsa_sys::snd_mixer_elem_free(self.handle); }
+        if self.handle.is_null() {
+            unsafe { alsa_sys::snd_mixer_elem_free(self.handle); }
+        }
     }
 }
 
