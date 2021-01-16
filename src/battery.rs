@@ -6,6 +6,7 @@ use std::{fs, io};
 const CHARGE: &str = "🗲";
 const DISCHARGE: &str = "🔋";
 const FULL: &str = "🔌";
+const UNKNOWN: &str = "???";
 
 #[derive(PartialEq)]
 enum BatteryState {
@@ -24,13 +25,11 @@ fn match_consume(string: &mut &str, prefix: &str) -> bool {
     }
 }
 
-pub fn status() -> String {
+pub fn status() -> Option<String> {
     let fd = match fs::File::open("/sys/class/power_supply/BAT0/uevent") {
         Ok(fd) => io::BufReader::new(fd),
-        Err(err) => {
-            let ret = CHARGE.to_string();
-            eprintln!("{}", err);
-            return ret + " AC";
+        Err(_err) => {
+            return None;
         },
     };
     let mut state = BatteryState::Unknown;
@@ -43,7 +42,7 @@ pub fn status() -> String {
     let mut watt_as_unit = false;
 
     for line in fd.lines() {
-        let line = line.unwrap();
+        let line = line.expect("Failed to read battery line");
         let mut l = &line[..];
 
         if match_consume(&mut l, "POWER_SUPPLY_") {
@@ -96,7 +95,7 @@ pub fn status() -> String {
     if full < 0 {
         // We have no physical measurements and no estimates. Nothing
         // much we can report, then.
-        (BAD.to_string() + "No battery")
+        Some(BAD.to_string() + "No battery")
     } else {
         let mut percentage_remaining = 100.0 * remaining as f64 / full as f64;
 
@@ -127,8 +126,8 @@ pub fn status() -> String {
             "".to_string()
         };
         match state {
-            BatteryState::Discharge | BatteryState::Charge => {
-                ret += if state == BatteryState::Charge { CHARGE } else { DISCHARGE };
+            BatteryState::Discharge | BatteryState::Charge | BatteryState::Unknown => {
+                ret += if state == BatteryState::Charge { CHARGE } else if state == BatteryState::Discharge { DISCHARGE } else { UNKNOWN };
                 ret += &format!(" {:0.0}% (", percentage_remaining);
                 if seconds_remaining > 3600 {
                     ret += &format!("{}h{:02})", seconds_remaining / 3600, (seconds_remaining % 3600) / 60);
@@ -136,9 +135,8 @@ pub fn status() -> String {
                     ret += &format!("{}m{:02})", seconds_remaining / 60, seconds_remaining % 60);
                 }
             },
-            BatteryState::Full => { ret += FULL; ret += " 100%%"; },
-            _ => { ret += "???"; },
+            BatteryState::Full => { ret += FULL; ret += " 100%"; },
         };
-        ret
+        Some(ret)
     }
 }

@@ -6,11 +6,11 @@ static ICON: &str = "🖴";
 static PATH: &str = "/";
 
 pub fn status() -> String {
-    let mut buf: statvfs = unsafe { mem::uninitialized() };
+    let mut buf = mem::MaybeUninit::<statvfs>::uninit();
     let mut mounted = false;
     let path = ffi::CString::new(PATH).unwrap();
 
-    if unsafe { statvfs(path.as_ptr(), &mut buf) } == -1 {
+    if unsafe { statvfs(path.as_ptr(), buf.as_mut_ptr()) } == -1 {
         // If statvfs errors, e.g., due to the path not existing,
         // we consider the device not mounted.
         mounted = false;
@@ -35,6 +35,7 @@ pub fn status() -> String {
     if !mounted {
         BAD.to_string() + ICON + " ?"
     } else {
+        let buf = unsafe { buf.assume_init() };
         let percent_free = 100.0 * buf.f_bfree as f64 / buf.f_blocks as f64;
         let mut result = if percent_free < 10.0 { WARN } else { "" }.to_string() + ICON + " ";
         result += &prefixed(buf.f_bsize as f64 * buf.f_bavail as f64);

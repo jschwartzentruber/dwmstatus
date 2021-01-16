@@ -25,6 +25,7 @@ extern {
     fn nl_send_sync(sk: *mut nl_sock, msg: *mut nl_msg) -> c_int;
     fn nl_socket_alloc() -> *mut nl_sock;
     fn nl_socket_free(isk: *mut nl_sock);
+    #[allow(improper_ctypes)]
     fn nl_socket_modify_cb(sk: *mut nl_sock, type_: nl_cb_type, kind: nl_cb_kind, func: extern fn(*mut nl_msg, arg: *mut WLanInfo) -> c_int, arg: *mut WLanInfo) -> c_int;
     fn nla_data(nla: *const nlattr) -> *mut c_void;
     fn nla_get_s32(nla: *mut nlattr) -> i32;
@@ -42,6 +43,8 @@ extern {
     fn nlmsg_hdr(n: *mut nl_msg) -> *mut nlmsghdr;
 }
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nla_types {
     NLA_UNSPEC,
@@ -62,6 +65,8 @@ enum nla_types {
     NLA_S64,
 }
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl_cb_action {
     NL_OK, // Proceed with wathever would come next
@@ -69,6 +74,8 @@ enum nl_cb_action {
     NL_STOP, // Stop parsing altogether and discard remaining messages
 }
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl_cb_type {
     NL_CB_VALID, // Message is valid
@@ -84,6 +91,8 @@ enum nl_cb_type {
     NL_CB_DUMP_INTR, // Flag NLM_F_DUMP_INTR is set in message
 }
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl_cb_kind {
     NL_CB_DEFAULT, // Default handlers (quiet)
@@ -92,6 +101,8 @@ enum nl_cb_kind {
     NL_CB_CUSTOM, // Customized handler specified by the user
 }
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl80211_attr {
     NL80211_ATTR_UNSPEC,
@@ -363,6 +374,8 @@ enum nl80211_attr {
 }
 static NL80211_ATTR_MAX: usize = nl80211_attr::NUM_NL80211_ATTR as usize - 1;
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl80211_bss {
     __NL80211_BSS_INVALID,
@@ -389,6 +402,8 @@ enum nl80211_bss {
 }
 static NL80211_BSS_MAX: usize = nl80211_bss::NUM_NL80211_BSS as usize - 1;
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl80211_bss_status {
     NL80211_BSS_STATUS_AUTHENTICATED,
@@ -396,6 +411,8 @@ enum nl80211_bss_status {
     NL80211_BSS_STATUS_IBSS_JOINED,
 }
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl80211_commands {
     NL80211_CMD_UNSPEC,
@@ -530,8 +547,11 @@ enum nl80211_commands {
     NL80211_CMD_CONTROL_PORT_FRAME,
     NUM_NL80211_CMD
 }
+#[allow(dead_code)]
 static NL80211_CMD_MAX: usize = nl80211_commands::NUM_NL80211_CMD as usize - 1;
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl80211_rate_info {
     __NL80211_RATE_INFO_INVALID,
@@ -551,6 +571,8 @@ enum nl80211_rate_info {
 }
 static NL80211_RATE_INFO_MAX: usize = nl80211_rate_info::NUM_NL80211_RATE_INFO as usize - 1;
 
+#[allow(non_camel_case_types)]
+#[allow(dead_code)]
 #[repr(C)]
 enum nl80211_sta_info {
     __NL80211_STA_INFO_INVALID,
@@ -598,11 +620,11 @@ static NLM_F_ROOT: i32 = 0x100;
 static NLM_F_MATCH: i32 = 0x200;
 static NLM_F_DUMP: i32 = NLM_F_ROOT | NLM_F_MATCH;
 
-#[repr(C)] struct genlmsghdr {}
-#[repr(C)] struct nlmsghdr {}
-#[repr(C)] struct nl_msg {}
-#[repr(C)] struct nl_sock {}
-#[repr(C)] struct nlattr {}
+#[repr(C)] struct genlmsghdr { _private: [u8; 0] }
+#[repr(C)] struct nlmsghdr { _private: [u8; 0] }
+#[repr(C)] struct nl_msg { _private: [u8; 0] }
+#[repr(C)] struct nl_sock { _private: [u8; 0] }
+#[repr(C)] struct nlattr { _private: [u8; 0] }
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -770,7 +792,7 @@ fn nl80211_xbm_to_percent(xbm: f64) -> f64 {
         xbm = SIGNAL_MAX_DBM;
     }
 
-    (100.0 - 70.0 * ((SIGNAL_MAX_DBM - xbm) / (SIGNAL_MAX_DBM - NOISE_FLOOR_DBM)))
+    100.0 - 70.0 * ((SIGNAL_MAX_DBM - xbm) / (SIGNAL_MAX_DBM - NOISE_FLOOR_DBM))
 }
 
 // Based on NetworkManager/src/platform/wifi/wifi-utils-nl80211.c

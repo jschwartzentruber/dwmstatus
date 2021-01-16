@@ -15,6 +15,6 @@ pub fn status() -> String {
             return prefixed(hz) + "Hz";
         }
     }
-    (WARN.to_string() + "?")
+    WARN.to_string() + "?"
 }
 

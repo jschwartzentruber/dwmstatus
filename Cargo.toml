@@ -1,6 +1,6 @@
 [package]
 name = "dwmstatus"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Jesse Schwartzentruber <truber@mozilla.com>"]
 edition = "2018"
 
@@ -11,6 +11,8 @@ panic = "abort"
 
 [dependencies]
 chrono = "0.4"
-alsa-sys = "0.1"
+glob = "0.3"
 libc = "*"
+libpulse-sys = "1.17.0"
+mpris = "1.1.2"
 x11 = { version = "2.18", features = ["xlib"] }
